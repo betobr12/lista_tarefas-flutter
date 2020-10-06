@@ -22,7 +22,8 @@ class _HomeState extends State<Home> {
 
   List _toDoList = [];
 
-  Map<String, dynamic> _lastRemoved; //mapa do item que acabou de remover para recupera -lo
+  Map<String, dynamic>
+      _lastRemoved; //mapa do item que acabou de remover para recupera -lo
   int _lastRemovedPos;
 
   @override
@@ -51,19 +52,21 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<Null> _refresh() async{
+  Future<Null> _refresh() async {
     await Future.delayed(Duration(seconds: 1));
     setState(() {
-      _toDoList.sort((a, b){
-        if(a["ok"] && !b["ok"]) return 1;
-        else if(!a["ok"] && b["ok"]) return -1;
-        else return 0;
+      _toDoList.sort((a, b) {
+        if (a["ok"] && !b["ok"])
+          return 1;
+        else if (!a["ok"] && b["ok"])
+          return -1;
+        else
+          return 0;
       });
       _saveData();
     });
 
     return null;
-
   }
 
   @override
@@ -100,17 +103,19 @@ class _HomeState extends State<Home> {
               ),
             ),
             Expanded(
-              
               child: RefreshIndicator(
                 onRefresh: _refresh,
                 child: ListView.builder(
                   padding: EdgeInsets.only(top: 10.0),
                   itemCount: _toDoList.length,
-                  itemBuilder: buildItem, ),
-            ),),
+                  itemBuilder: buildItem,
+                ),
+              ),
+            ),
           ],
         ));
   }
+
 //metodo responsavel por adicionar os itens na lista
   Widget buildItem(BuildContext context, int index) {
     return Dismissible(
@@ -119,52 +124,58 @@ class _HomeState extends State<Home> {
         color: Colors.red,
         child: Align(
           alignment: Alignment(-0.9, 0.0),
-          child: Icon(Icons.delete, color: Colors.white,),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
         ),
       ),
-      direction: DismissDirection.startToEnd, //direção para arrastar o item para exclui -lo da esquerda para direita
+      direction: DismissDirection
+          .startToEnd, //direção para arrastar o item para exclui -lo da esquerda para direita
       child: CheckboxListTile(
         title: Text(_toDoList[index]["title"]),
         value: _toDoList[index]["ok"],
         secondary: CircleAvatar(
-          child: Icon(
-              _toDoList[index]["ok"] ? Icons.check : Icons.error),
+          child: Icon(_toDoList[index]["ok"] ? Icons.check : Icons.error),
         ),
         onChanged: (c) {
           //c é a variavel para alterar o estado do item
           setState(() {
-            _toDoList[index]["ok"] =
-                c; //altera o estado do item do check
+            _toDoList[index]["ok"] = c; //altera o estado do item do check
             _saveData();
           });
         },
       ),
-      onDismissed: (direction){
-          setState(() {
-            _lastRemoved = Map.from(_toDoList[index]);//duplicando o item após remove -lo
-            _lastRemovedPos = index;
-            _toDoList.removeAt(index);
+      onDismissed: (direction) {
+        setState(() {
+          _lastRemoved =
+              Map.from(_toDoList[index]); //duplicando o item após remove -lo
+          _lastRemovedPos = index;
+          _toDoList.removeAt(index);
 
-            _saveData();
+          _saveData();
 
-            final snack = SnackBar(
-              content: Text("Tarefa \"${_lastRemoved["title"]}\" removida"),
-              action: SnackBarAction(label:"Desfazer",
-                onPressed: (){ //função anonima para reincluir o item na lista
-          setState(() {
-             _toDoList.insert(_lastRemovedPos, _lastRemoved);
-              _saveData();//salva os dados recuperados
-              });
-              },),
-              duration: Duration(seconds: 2), //duração do snackbar
-            );
-            Scaffold.of(context).removeCurrentSnackBar();
-            Scaffold.of(context).showSnackBar(snack); //para exibir o snackbar
-
-          });
+          final snack = SnackBar(
+            content: Text("Tarefa \"${_lastRemoved["title"]}\" removida"),
+            action: SnackBarAction(
+              label: "Desfazer",
+              onPressed: () {
+                //função anonima para reincluir o item na lista
+                setState(() {
+                  _toDoList.insert(_lastRemovedPos, _lastRemoved);
+                  _saveData(); //salva os dados recuperados
+                });
+              },
+            ),
+            duration: Duration(seconds: 2), //duração do snackbar
+          );
+          Scaffold.of(context).removeCurrentSnackBar();
+          Scaffold.of(context).showSnackBar(snack); //para exibir o snackbar
+        });
       },
     );
   }
+
 //-----------------funções para o armazenamento dos dados JSON--------------------
   Future<File> _getFile() async {
     final directory = await getApplicationDocumentsDirectory();
